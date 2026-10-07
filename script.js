@@ -40,6 +40,26 @@ dialog.addEventListener('close', () => {
 document.querySelector('#year').textContent = new Date().getFullYear();
 
 const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+const headerLogo = document.querySelector('.header .brand-logo');
+const logoImage = headerLogo.querySelector('img');
+
+function rotateLogo() {
+  if (!motionPreference.matches) headerLogo.classList.add('logo-spinning');
+}
+
+// Вращаем только изображение: область ссылки остаётся неподвижной.
+headerLogo.addEventListener('pointerenter', event => {
+  if (event.pointerType === 'mouse') rotateLogo();
+});
+headerLogo.addEventListener('focus', rotateLogo);
+logoImage.addEventListener('animationend', event => {
+  if (event.animationName === 'logo-turn') headerLogo.classList.remove('logo-spinning');
+});
+motionPreference.addEventListener('change', event => {
+  if (event.matches) headerLogo.classList.remove('logo-spinning');
+});
+if (logoImage.complete && logoImage.naturalWidth > 0) rotateLogo();
+else logoImage.addEventListener('load', rotateLogo, { once: true });
 
 if ('IntersectionObserver' in window && !motionPreference.matches) {
   document.documentElement.classList.add('js');
