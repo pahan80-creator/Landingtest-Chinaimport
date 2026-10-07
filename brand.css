@@ -167,8 +167,8 @@ button:disabled{cursor:wait}
   .engine-panel{margin-top:12px}
   .engine-note{margin-top:6px!important}
   .hero-art{top:20px;right:0;bottom:42px}
-  .hero-art .car-visual{top:50%;right:2%;translate:0 -50%;width:min(110%,calc((100svh - 270px)*1.5))}
-  .art-halo{top:0;height:100%}
+  .hero-art .car-visual{top:50%;left:0;right:auto;translate:0 -50%;width:min(100%,calc((100svh - 270px)*1.5))}
+  .art-halo{top:0;right:1%;width:84%;height:92%}
   .photo-shadow{bottom:0}
   .hero-lower{bottom:12px}
   .delivery-band{min-height:132px;padding-block:18px}
