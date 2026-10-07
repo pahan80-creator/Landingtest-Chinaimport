@@ -211,9 +211,20 @@ button:disabled{cursor:wait}
 }
 
 /* The header logo extends into the cream area without making the header taller. */
-.topbar .brand-mark{width:148px;height:104px;align-self:flex-start;margin-top:8px}
-.topbar .brand-mark img{width:144px;height:96px;filter:drop-shadow(0 4px 4px #05231730)}
+.topbar .brand-mark{width:220px;height:154px;align-self:flex-start;margin-top:-24px}
+.topbar .brand-mark img{width:216px;height:144px;filter:drop-shadow(0 4px 4px #05231730)}
 @media(max-width:760px){
-  .topbar .brand-mark{width:138px;height:98px;margin-top:12px}
-  .topbar .brand-mark img{width:135px;height:90px}
+  .topbar .brand-mark{width:206px;height:145px;margin-top:-12px}
+  .topbar .brand-mark img{width:202.5px;height:135px}
+}
+
+@media(min-width:1101px){.main-copy>.overline{margin-top:12px}}
+@media(min-width:1101px) and (max-height:700px){.main-hero{padding-bottom:18px}}
+
+/* Briefly compact the large mark during its turn so it stays inside the viewport. */
+@keyframes logo-revolve{
+  0%{transform:rotate(0deg) scale(1)}
+  10%{transform:rotate(0deg) scale(.56)}
+  90%{transform:rotate(360deg) scale(.56)}
+  100%{transform:rotate(360deg) scale(1)}
 }
