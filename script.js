@@ -45,20 +45,40 @@ dialog.addEventListener('close', () => {
 });
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-const headerLogo = document.querySelector('.topbar .brand-mark');
-const logoImage = headerLogo.querySelector('img');
-function rotateLogo() {
-  if (!motionPreference.matches) headerLogo.classList.add('spinning');
+const brandLogos = Array.from(document.querySelectorAll('.brand-mark'));
+function rotateLogo(logo) {
+  if (!motionPreference.matches && !logo.classList.contains('spinning')) logo.classList.add('spinning');
 }
-headerLogo.addEventListener('pointerenter', event => {
-  if (event.pointerType === 'mouse') rotateLogo();
+function startLogoEntrance(logo) {
+  const image = logo.querySelector('img');
+  if (image.complete && image.naturalWidth > 0) rotateLogo(logo);
+  else image.addEventListener('load', () => rotateLogo(logo), { once: true });
+}
+brandLogos.forEach(logo => {
+  logo.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'mouse') rotateLogo(logo);
+  });
+  logo.addEventListener('focus', () => rotateLogo(logo));
+  const finish = event => {
+    if (event.animationName === 'logo-revolve') logo.classList.remove('spinning');
+  };
+  logo.querySelector('img').addEventListener('animationend', finish);
+  logo.querySelector('img').addEventListener('animationcancel', finish);
 });
-headerLogo.addEventListener('focus', rotateLogo);
-logoImage.addEventListener('animationend', event => {
-  if (event.animationName === 'logo-revolve') headerLogo.classList.remove('spinning');
-});
-if (logoImage.complete && logoImage.naturalWidth > 0) rotateLogo();
-else logoImage.addEventListener('load', rotateLogo, { once: true });
+if ('IntersectionObserver' in window && !motionPreference.matches) {
+  const logoObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+        startLogoEntrance(entry.target);
+        logoObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.6 });
+  brandLogos.forEach(logo => logoObserver.observe(logo));
+  motionPreference.addEventListener('change', event => {
+    if (event.matches) logoObserver.disconnect();
+  });
+} else brandLogos.forEach(startLogoEntrance);
 
 const savingValue = document.querySelector('.saving-value');
 const savingNumber = document.querySelector('.saving-number');
@@ -234,7 +254,7 @@ document.querySelectorAll('a[href], button').forEach(control => {
 
 motionPreference.addEventListener('change', event => {
   if (event.matches) {
-    headerLogo.classList.remove('spinning');
+    brandLogos.forEach(logo => logo.classList.remove('spinning'));
     finishSavingCount();
     finishEngine();
   }

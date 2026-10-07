@@ -57,6 +57,7 @@ function setup({ reduced = false } = {}) {
     hidden: false, body: element('body'), documentElement: element('html'),
     querySelector: element,
     querySelectorAll(selector) {
+      if (selector === '.brand-mark') return [element('.topbar .brand-mark'), element('.site-footer .brand-mark')];
       if (selector === 'a[href], button') return [element('.hover-control'), element('#engine-sound')];
       if (selector === '[data-consult]') return [element('.model-button')];
       if (selector.includes('.facts')) return [element('.facts'), element('.reveal')];
@@ -239,4 +240,38 @@ test('blocked UI audio does not undo the explicit sound preference', async () =>
   app.click('#engine-sound');
   await Promise.resolve();
   assert.equal(app.element('#engine-sound').getAttribute('aria-pressed'), 'true');
+});
+
+test('both logos animate on mouse hover and can replay after completing', () => {
+  const app = setup();
+  for (const name of ['.topbar .brand-mark', '.site-footer .brand-mark']) {
+    const logo = app.element(name);
+    logo.emit('pointerenter', { pointerType: 'touch' });
+    assert.equal(logo.classList.contains('spinning'), false);
+    logo.emit('pointerenter', { pointerType: 'mouse' });
+    assert.equal(logo.classList.contains('spinning'), true);
+    app.element(name + ' img').emit('animationend', { animationName: 'logo-revolve' });
+    assert.equal(logo.classList.contains('spinning'), false);
+    logo.emit('focus');
+    assert.equal(logo.classList.contains('spinning'), true);
+  }
+  app.reduce();
+  for (const name of ['.topbar .brand-mark', '.site-footer .brand-mark']) {
+    assert.equal(app.element(name).classList.contains('spinning'), false);
+  }
+});
+
+test('footer logo entrance starts when it comes into view, not while offscreen', () => {
+  const app = setup();
+  const logo = app.element('.site-footer .brand-mark');
+  const observer = app.observers.find(o => o.targets.includes(logo));
+  observer.callback([{ isIntersecting: false, target: logo }]);
+  assert.equal(logo.classList.contains('spinning'), false);
+  observer.callback([{ isIntersecting: true, intersectionRatio: 0.2, target: logo }]);
+  assert.equal(logo.classList.contains('spinning'), false);
+  observer.callback([{ isIntersecting: true, intersectionRatio: 0.8, target: logo }]);
+  assert.equal(logo.classList.contains('spinning'), true);
+  const reduced = setup({ reduced: true });
+  reduced.element('.site-footer .brand-mark').emit('focus');
+  assert.equal(reduced.element('.site-footer .brand-mark').classList.contains('spinning'), false);
 });

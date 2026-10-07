@@ -211,11 +211,13 @@ button:disabled{cursor:wait}
 }
 
 /* The header logo extends into the cream area without making the header taller. */
-.topbar .brand-mark{width:220px;height:154px;align-self:flex-start;margin-top:-24px}
-.topbar .brand-mark img{width:216px;height:144px;filter:drop-shadow(0 4px 4px #05231730)}
+.topbar .brand-mark,.site-footer .brand-mark{width:220px;height:154px;justify-content:center}
+.topbar .brand-mark{align-self:flex-start;margin-top:-24px}
+.topbar .brand-mark img,.site-footer .brand-mark img{width:216px;height:144px;filter:drop-shadow(0 4px 4px #05231730)}
 @media(max-width:760px){
-  .topbar .brand-mark{width:206px;height:145px;margin-top:-12px}
-  .topbar .brand-mark img{width:202.5px;height:135px}
+  .topbar .brand-mark,.site-footer .brand-mark{width:206px;height:145px}
+  .topbar .brand-mark{margin-top:-12px}
+  .topbar .brand-mark img,.site-footer .brand-mark img{width:202.5px;height:135px}
 }
 
 @media(min-width:1101px){.main-copy>.overline{margin-top:12px}}
@@ -224,7 +226,11 @@ button:disabled{cursor:wait}
 /* Briefly compact the large mark during its turn so it stays inside the viewport. */
 @keyframes logo-revolve{
   0%{transform:rotate(0deg) scale(1)}
-  10%{transform:rotate(0deg) scale(.56)}
-  90%{transform:rotate(360deg) scale(.56)}
+  25%{transform:rotate(0deg) scale(.56)}
+  65%{transform:rotate(360deg) scale(.56)}
   100%{transform:rotate(360deg) scale(1)}
+}
+
+@media(prefers-reduced-motion:no-preference){
+  .brand-mark.spinning img{animation:logo-revolve 2.4s cubic-bezier(.45,0,.25,1)}
 }
