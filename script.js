@@ -75,11 +75,12 @@ function animateSavings() {
   if (savingStarted) return;
   savingStarted = true;
   if (motionPreference.matches) return finishSavingCount();
+  savingNumber.textContent = '0';
   let startedAt;
   function update(timestamp) {
     if (startedAt === undefined) startedAt = timestamp;
-    const progress = Math.min((timestamp - startedAt) / 1500, 1);
-    savingNumber.textContent = String(Math.floor(savingTarget * (1 - Math.pow(1 - progress, 3))));
+    const progress = Math.min((timestamp - startedAt) / 2200, 1);
+    savingNumber.textContent = String(Math.floor(savingTarget * (1 - Math.pow(1 - progress, 2))));
     if (progress < 1) savingFrame = requestAnimationFrame(update);
     else finishSavingCount(true);
   }
@@ -96,15 +97,26 @@ if ('IntersectionObserver' in window && !motionPreference.matches) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        if (entry.target.classList.contains('facts')) animateSavings();
         observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal, .facts').forEach(element => observer.observe(element));
+  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+  // Start only once the number itself is readable, and replay on a new visit.
+  const savingObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.65) animateSavings();
+      else if (!entry.isIntersecting) {
+        finishSavingCount();
+        savingStarted = false;
+      }
+    });
+  }, { threshold: [0, 0.65] });
+  savingObserver.observe(savingValue);
   motionPreference.addEventListener('change', event => {
     if (event.matches) {
       observer.disconnect();
+      savingObserver.disconnect();
       document.querySelectorAll('.reveal').forEach(element => element.classList.add('visible'));
     }
   });

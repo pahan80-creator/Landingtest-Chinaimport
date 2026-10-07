@@ -84,7 +84,7 @@ button:disabled{cursor:wait}
 @media(prefers-reduced-motion:no-preference){
   .car-visual.engine-running{animation:engine-start 2.8s ease-in-out}
   .car-visual.engine-running .headlight{animation:headlights-start 2.8s ease-in-out both}
-  .percent.count-complete{animation:percentage-glow 1.2s ease-in-out}
+  .percent.count-complete{animation:percentage-glow 1.8s ease-in-out}
   .main-copy>.overline,.main-copy>h1,.main-copy>.intro,.main-actions{animation:entry-rise .55s ease-out both}
   .main-copy>h1{animation-delay:.07s}.main-copy>.intro{animation-delay:.14s}.main-actions{animation-delay:.21s}
   .js .reveal{opacity:0;translate:0 18px;transition:opacity .65s,translate .65s}

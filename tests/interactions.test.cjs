@@ -76,8 +76,8 @@ function setup({ reduced = false } = {}) {
     return media.get(query);
   };
   class IntersectionObserver {
-    constructor(callback) { this.callback = callback; observers.push(this); }
-    observe() {}
+    constructor(callback) { this.callback = callback; this.targets = []; observers.push(this); }
+    observe(target) { this.targets.push(target); }
     unobserve() {}
     disconnect() { this.disconnected = true; }
   }
@@ -167,14 +167,24 @@ test('leaving the page stops sound and startup', () => {
   assert.equal(app.element('[data-engine-car]').classList.contains('engine-running'), false);
 });
 
-test('savings reaches 30 once, and reduced motion reveals the final value', () => {
+test('savings waits for the visible number, replays on re-entry, and respects reduced motion', () => {
   const app = setup();
   assert.equal(app.element('.saving-number').textContent, '0');
-  app.observers[0].callback([{ isIntersecting: true, target: app.element('.facts') }]);
+  const observer = app.observers.find(o => o.targets.includes(app.element('.saving-value')));
+  observer.callback([{ isIntersecting: true, intersectionRatio: 0.2 }]);
+  assert.equal(app.element('.saving-number').textContent, '0');
+  observer.callback([{ isIntersecting: true, intersectionRatio: 0.8 }]);
   app.frame(0);
   app.frame(750);
   assert.ok(Number(app.element('.saving-number').textContent) > 0);
-  app.frame(1500);
+  app.frame(2200);
+  assert.equal(app.element('.saving-number').textContent, '30');
+  assert.equal(app.element('.saving-value').classList.contains('count-complete'), true);
+  observer.callback([{ isIntersecting: false, intersectionRatio: 0 }]);
+  observer.callback([{ isIntersecting: true, intersectionRatio: 1 }]);
+  assert.equal(app.element('.saving-number').textContent, '0');
+  app.frame(3000);
+  app.frame(5200);
   assert.equal(app.element('.saving-number').textContent, '30');
   app.reduce();
   assert.equal(app.element('.saving-value').classList.contains('count-complete'), false);
