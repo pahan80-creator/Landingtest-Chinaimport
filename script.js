@@ -39,7 +39,9 @@ dialog.addEventListener('close', () => {
 });
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+
+if ('IntersectionObserver' in window && !motionPreference.matches) {
   document.documentElement.classList.add('js');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -48,6 +50,12 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0, rootMargin: '0px 0px 120px 0px' });
-  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .route-animated').forEach(element => observer.observe(element));
+  motionPreference.addEventListener('change', event => {
+    if (event.matches) {
+      observer.disconnect();
+      document.querySelectorAll('.reveal, .route-animated').forEach(element => element.classList.add('visible'));
+    }
+  });
 }
