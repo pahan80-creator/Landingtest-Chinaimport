@@ -124,6 +124,7 @@ if ('IntersectionObserver' in window && !motionPreference.matches) {
 
 const car = document.querySelector('[data-engine-car]');
 const engineAudio = document.querySelector('#engine-audio');
+const uiHoverAudio = document.querySelector('#ui-hover-audio');
 const startButton = document.querySelector('#start-engine');
 const soundButton = document.querySelector('#engine-sound');
 const engineStatus = document.querySelector('#engine-status');
@@ -134,6 +135,8 @@ let engineTimer = 0;
 let lastEngineStart = -Infinity;
 let audioRequest = 0;
 engineAudio.volume = 0.35;
+uiHoverAudio.volume = 0.14;
+let lastHoverSound = -Infinity;
 document.querySelector('.engine-panel').hidden = false;
 
 function updateSoundButton() {
@@ -144,6 +147,7 @@ function stopEngineSound() {
   // Ignore the result of an older play request after mute/closing the dialog.
   audioRequest += 1;
   engineAudio.pause();
+  uiHoverAudio.pause();
   if (engineAudio.readyState > 0) engineAudio.currentTime = 0;
 }
 function finishEngine() {
@@ -154,10 +158,10 @@ function finishEngine() {
   startButton.removeAttribute('aria-busy');
   stopEngineSound();
   engineStatus.textContent = soundEnabled
-    ? 'Наведите на автомобиль — звук включён.'
+    ? 'Звук включён: автомобиль и кнопки.'
     : soundPreferenceSet
       ? 'Звук выключен. Его можно включить кнопкой «Звук».'
-      : 'Наведите на машину. Кнопка «Завести» включит звук.';
+      : 'Звук автомобиля и кнопок включается по клику.';
 }
 function playEngineSound() {
   const request = ++audioRequest;
@@ -203,11 +207,29 @@ soundButton.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   soundPreferenceSet = true;
   updateSoundButton();
-  if (soundEnabled) startEngine(true);
+  if (soundEnabled) {
+    playHoverSound(true);
+    engineStatus.textContent = 'Звук включён: автомобиль и кнопки.';
+  }
   else {
     stopEngineSound();
     engineStatus.textContent = 'Звук выключен. Анимация при наведении работает.';
   }
+});
+
+
+function playHoverSound(force = false) {
+  const now = performance.now();
+  if (!soundEnabled || document.hidden || engineRunning || (!force && now - lastHoverSound < 250)) return;
+  lastHoverSound = now;
+  uiHoverAudio.currentTime = 0;
+  // A blocked UI sound should remain silent without changing the user's choice.
+  uiHoverAudio.play().catch(() => {});
+}
+document.querySelectorAll('a[href], button').forEach(control => {
+  control.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'mouse' && !control.disabled) playHoverSound();
+  });
 });
 
 motionPreference.addEventListener('change', event => {

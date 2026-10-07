@@ -57,6 +57,7 @@ function setup({ reduced = false } = {}) {
     hidden: false, body: element('body'), documentElement: element('html'),
     querySelector: element,
     querySelectorAll(selector) {
+      if (selector === 'a[href], button') return [element('.hover-control'), element('#engine-sound')];
       if (selector === '[data-consult]') return [element('.model-button')];
       if (selector.includes('.facts')) return [element('.facts'), element('.reveal')];
       if (selector === '.reveal') return [element('.reveal')];
@@ -93,6 +94,7 @@ function setup({ reduced = false } = {}) {
     element, document, observers,
     click: n => element(n).emit('click'),
     hover() { now += 4000; element('[data-engine-car]').emit('pointerenter', { pointerType: 'mouse' }); },
+    hoverControl(delta = 300, pointerType = 'mouse') { now += delta; element('.hover-control').emit('pointerenter', { pointerType }); },
     endEngine() { for (const [n, cb] of [...timers]) { timers.delete(n); cb(); } },
     reduce() { matchMedia('(prefers-reduced-motion: reduce)').change(true); },
     frame(time) { const [n, cb] = frames.entries().next().value; frames.delete(n); cb(time); },
@@ -191,4 +193,50 @@ test('savings waits for the visible number, replays on re-entry, and respects re
   assert.equal(app.element('.reveal').classList.contains('visible'), true);
   const reduced = setup({ reduced: true });
   assert.equal(reduced.element('.saving-number').textContent, '30');
+});
+
+test('UI sounds require a click, throttle rapid hovers, and stop after mute or hiding', () => {
+  const app = setup();
+  const audio = app.element('#ui-hover-audio');
+  app.hoverControl();
+  assert.equal(audio.playCalls, 0);
+  app.click('#engine-sound');
+  assert.equal(audio.playCalls, 1);
+  assert.equal(app.element('#engine-audio').playCalls, 0);
+  app.hoverControl();
+  assert.equal(audio.playCalls, 2);
+  app.hoverControl(100);
+  assert.equal(audio.playCalls, 2);
+  app.hoverControl(200);
+  assert.equal(audio.playCalls, 3);
+  app.hoverControl(300, 'touch');
+  assert.equal(audio.playCalls, 3);
+  app.click('#engine-sound');
+  assert.equal(audio.paused, true);
+  app.hoverControl();
+  assert.equal(audio.playCalls, 3);
+  app.click('#engine-sound');
+  app.document.hidden = true;
+  app.element('document').emit('visibilitychange');
+  assert.equal(audio.paused, true);
+  app.hoverControl();
+  assert.equal(audio.playCalls, 4);
+});
+
+test('UI sounds stay quiet while the engine is running', () => {
+  const app = setup();
+  app.click('#start-engine');
+  app.hoverControl();
+  assert.equal(app.element('#ui-hover-audio').playCalls, 0);
+  app.endEngine();
+  app.hoverControl();
+  assert.equal(app.element('#ui-hover-audio').playCalls, 1);
+});
+
+test('blocked UI audio does not undo the explicit sound preference', async () => {
+  const app = setup();
+  app.element('#ui-hover-audio').nextPlay = () => Promise.reject({ name: 'NotAllowedError' });
+  app.click('#engine-sound');
+  await Promise.resolve();
+  assert.equal(app.element('#engine-sound').getAttribute('aria-pressed'), 'true');
 });

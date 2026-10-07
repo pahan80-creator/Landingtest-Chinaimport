@@ -209,3 +209,11 @@ button:disabled{cursor:wait}
   .import-design :is(.navigation a,.text-action,.primary-action,.engine-controls button,.car-details button,.car-item):hover,
   .import-design :is(.text-action>span,.primary-action>svg,.car-details button>svg){transform:none}
 }
+
+/* The header logo extends into the cream area without making the header taller. */
+.topbar .brand-mark{width:148px;height:104px;align-self:flex-start;margin-top:8px}
+.topbar .brand-mark img{width:144px;height:96px;filter:drop-shadow(0 4px 4px #05231730)}
+@media(max-width:760px){
+  .topbar .brand-mark{width:138px;height:98px;margin-top:12px}
+  .topbar .brand-mark img{width:135px;height:90px}
+}
