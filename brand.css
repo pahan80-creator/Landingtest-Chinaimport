@@ -182,3 +182,30 @@ button:disabled{cursor:wait}
   .engine-panel{margin-top:10px}
   .hero-lower{display:none}
 }
+
+/* Shared hover feedback: color first, with a small lift for clickable controls. */
+.navigation a,.text-action{position:relative;isolation:isolate;transition:color .22s ease,transform .22s ease}
+.navigation a:before,.text-action:before{content:'';position:absolute;inset:-8px -12px;border-radius:24px;background:var(--mint);opacity:0;z-index:-1;transition:opacity .22s ease}
+.navigation a:focus-visible{color:var(--mint)}
+.navigation a:focus-visible:before{opacity:.12}
+.text-action:focus-visible:before{opacity:.45}
+.text-action>span,.primary-action>svg,.car-details button>svg{transition:transform .22s ease}
+.primary-action,.engine-controls button,.car-details button{transition:background-color .22s ease,color .22s ease,border-color .22s ease,box-shadow .22s ease,transform .22s ease}
+.engine-controls button:focus-visible,.car-details button:focus-visible{background:var(--mint);color:var(--deep);border-color:#628467}
+.car-item{transition:background-color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.js .car-item.reveal{transition:opacity .65s,translate .65s,background-color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.car-item:focus-within{background:#e7eddd;border-color:#62846780;box-shadow:0 12px 28px #0c382812}
+@media(hover:hover) and (pointer:fine){
+  .navigation a:hover{color:var(--mint);transform:translateY(-1px)}
+  .navigation a:hover:before{opacity:.12}
+  .text-action:hover{color:var(--deep);transform:translateY(-1px)}
+  .text-action:hover:before{opacity:.45}
+  .text-action:hover>span,.primary-action:hover>svg,.car-details button:hover>svg{transform:translateX(2px)}
+  .primary-action:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 6px 16px #0c38281a}
+  .engine-controls button:hover,.car-details button:hover{background:var(--mint);color:var(--deep);border-color:#628467;transform:translateY(-2px) scale(1.02)}
+  .car-item:hover{background:#e7eddd;border-color:#62846780;box-shadow:0 12px 28px #0c382812;transform:translateY(-4px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .import-design :is(.navigation a,.text-action,.primary-action,.engine-controls button,.car-details button,.car-item):hover,
+  .import-design :is(.text-action>span,.primary-action>svg,.car-details button>svg){transform:none}
+}
