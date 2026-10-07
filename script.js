@@ -61,12 +61,49 @@ motionPreference.addEventListener('change', event => {
 if (logoImage.complete && logoImage.naturalWidth > 0) rotateLogo();
 else logoImage.addEventListener('load', rotateLogo, { once: true });
 
+const savingValue = document.querySelector('.saving-value');
+const savingNumber = document.querySelector('.saving-number');
+const savingTarget = Number(savingNumber.dataset.count);
+let savingFrame = 0;
+let savingStarted = false;
+
+function finishSavingCount(highlight = false) {
+  cancelAnimationFrame(savingFrame);
+  savingFrame = 0;
+  savingNumber.textContent = String(savingTarget);
+  savingValue.classList.toggle('count-complete', highlight && !motionPreference.matches);
+}
+
+function animateSavings() {
+  if (savingStarted) return;
+  savingStarted = true;
+  if (motionPreference.matches) return finishSavingCount();
+  let startedAt;
+  function update(timestamp) {
+    if (startedAt === undefined) startedAt = timestamp;
+    const progress = Math.min((timestamp - startedAt) / 1500, 1);
+    savingNumber.textContent = String(Math.floor(savingTarget * (1 - Math.pow(1 - progress, 3))));
+    if (progress < 1) savingFrame = requestAnimationFrame(update);
+    else finishSavingCount(true);
+  }
+  savingFrame = requestAnimationFrame(update);
+}
+
+savingValue.addEventListener('animationend', event => {
+  if (event.animationName === 'savings-glow') savingValue.classList.remove('count-complete');
+});
+motionPreference.addEventListener('change', event => {
+  if (event.matches) finishSavingCount();
+});
+
 if ('IntersectionObserver' in window && !motionPreference.matches) {
   document.documentElement.classList.add('js');
+  savingNumber.textContent = '0';
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
+        if (entry.target.classList.contains('assurances')) animateSavings();
         observer.unobserve(entry.target);
       }
     });
