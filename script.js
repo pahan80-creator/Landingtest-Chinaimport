@@ -1,5 +1,22 @@
 'use strict';
 
+const themeToggle = document.querySelector('#theme-toggle');
+function applyTheme(theme, persist = false) {
+  const night = theme === 'night';
+  document.documentElement.setAttribute('data-theme', night ? 'night' : 'day');
+  themeToggle.setAttribute('aria-pressed', String(night));
+  themeToggle.setAttribute('title', night ? 'Включить дневное оформление' : 'Включить ночное оформление');
+  themeToggle.querySelector('.theme-label').textContent = night ? 'День' : 'Ночь';
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', night ? '#0b211b' : '#0c3828');
+  if (persist) {
+    try { localStorage.setItem('china-import-theme', night ? 'night' : 'day'); } catch { /* Optional persistence. */ }
+  }
+}
+applyTheme(document.documentElement.getAttribute('data-theme'));
+themeToggle.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'night' ? 'day' : 'night', true);
+});
+
 const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
 const toggle = document.querySelector('.menu-button');
 const navigation = document.querySelector('#navigation');

@@ -1,0 +1,35 @@
+:root{color-scheme:light;background:#f2f0e7}
+:root[data-theme="night"]{color-scheme:dark;background:#101a17}
+.import-design .theme-switch{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;flex-shrink:0;border:1px solid #b4d6a155;border-radius:24px;background:#b4d6a10d;color:#f2f0e7;font-size:14px;white-space:nowrap;transition:background-color .2s,color .2s,border-color .2s}
+.theme-switch svg{width:18px;height:18px;flex-shrink:0}
+.theme-switch .theme-sun{display:none}
+[data-theme="night"] .theme-switch .theme-sun{display:block}
+[data-theme="night"] .theme-switch .theme-moon{display:none}
+.theme-switch:hover,.theme-switch:focus-visible{background:#b4d6a12b;border-color:#b4d6a1}
+[data-theme="night"] .import-design{--deep:#082b23;--cream:#101a17;--ink:#ecf1e8;--muted:#afbeb4;--mint:#b6dca1;--line:#c4d8c426;--saving-glow:#b6dca1aa}
+[data-theme="night"] .topbar{background:#0b211b}
+[data-theme="night"] :is(.topbar,.delivery-band,.contact-cta,.site-footer){color:#ecf1e8}
+[data-theme="night"] .main-copy h1>span,[data-theme="night"] .advantages-intro h2>span{color:#a4cc98}
+[data-theme="night"] .art-halo{background:radial-gradient(ellipse at 60% 34%,#35644b,#0b3026 75%);box-shadow:0 0 70px #84ba8e0d}
+[data-theme="night"] .hero-art img{filter:drop-shadow(0 22px 18px #0007)}
+[data-theme="night"] .primary-action{background:var(--mint);color:#0b2418!important}
+[data-theme="night"] .primary-action:hover{background:#c9e7b8}
+[data-theme="night"] .cars-section{background:#121f1a}
+[data-theme="night"] .car-item{background:#1a2b23;border-color:#a8c6a82b}
+[data-theme="night"] .car-item:hover,[data-theme="night"] .car-item:focus-within{background:#253c2d;border-color:#b6dca180;box-shadow:0 12px 28px #0003}
+[data-theme="night"] .advantages-section,[data-theme="night"] .trust-section{background:#17271f}
+[data-theme="night"] .agreement-card{background:#203428;border-color:#aac5a82b;box-shadow:0 14px 35px #0002}
+[data-theme="night"] .fact-number,[data-theme="night"] .advantage>span,[data-theme="night"] .process-section li>span{color:#a2c492}
+[data-theme="night"] .engine-sound-button[aria-pressed="true"]{background:#b6dca11c;border-color:#a4cc9870;color:#e1edd9}
+[data-theme="night"] .engine-controls button:hover,[data-theme="night"] .engine-controls button:focus-visible,[data-theme="night"] .car-details button:hover,[data-theme="night"] .car-details button:focus-visible{background:var(--mint);color:#0b2418;border-color:var(--mint)}
+[data-theme="night"] .text-action:hover{color:#ecf1e8}
+[data-theme="night"] .text-action:hover:before,[data-theme="night"] .text-action:focus-visible:before{opacity:.16}
+[data-theme="night"] .menu-button{color:#e9eee6}
+[data-theme="night"] .navigation{color:#d9e2d6}
+[data-theme="night"] .consultation{background:#1a2b23;color:#ecf1e8}
+[data-theme="night"] .consultation::backdrop{background:#030b09bd}
+@keyframes percentage-glow{0%,100%{opacity:1;text-shadow:none}25%,65%{opacity:1;text-shadow:0 0 24px var(--saving-glow,#62846780)}45%{opacity:.65}}
+@media(max-width:1350px) and (min-width:761px){.topbar{gap:20px}.header-phone{margin-left:0}.navigation{gap:20px}}
+@media(max-width:1100px){.theme-switch .theme-label{display:none}.import-design .theme-switch{width:40px;padding:8px}}
+@media(max-width:760px){.topbar{gap:10px}.import-design .theme-switch{width:38px;min-height:38px;margin-left:auto}.menu-button{flex-shrink:0}}
+@media(max-width:360px){.topbar .brand-mark{width:calc(100% - 100px)}.topbar .brand-mark img{width:100%;height:auto;max-height:135px}}

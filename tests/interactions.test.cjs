@@ -4,9 +4,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+const themeInit = fs.readFileSync(path.join(__dirname, '../theme-init.js'), 'utf8');
 const source = fs.readFileSync(path.join(__dirname, '../script.js'), 'utf8');
 
-function setup({ reduced = false } = {}) {
+function setup({ reduced = false, storedTheme = null, storageBlocked = false } = {}) {
   const elements = new Map();
   const timers = new Map();
   const frames = new Map();
@@ -83,7 +84,15 @@ function setup({ reduced = false } = {}) {
     unobserve() {}
     disconnect() { this.disconnected = true; }
   }
-  vm.runInNewContext(source, {
+  const storage = new Map();
+  if (storedTheme !== null) storage.set('china-import-theme', storedTheme);
+  const localStorage = {
+    getItem(key) { if (storageBlocked) throw new Error('Storage blocked'); return storage.get(key) || null; },
+    setItem(key, value) { if (storageBlocked) throw new Error('Storage blocked'); storage.set(key, value); },
+  };
+  vm.runInNewContext(themeInit, {document, localStorage});
+  const initialTheme = document.documentElement.getAttribute('data-theme');
+  vm.runInNewContext(source, {localStorage,
     document, window: { IntersectionObserver }, IntersectionObserver, matchMedia, Date,
     performance: { now: () => now },
     setTimeout(cb) { timers.set(++id, cb); return id; },
@@ -92,7 +101,7 @@ function setup({ reduced = false } = {}) {
     cancelAnimationFrame(n) { frames.delete(n); },
   });
   return {
-    element, document, observers,
+    element, document, observers, storage, initialTheme,
     click: n => element(n).emit('click'),
     hover() { now += 4000; element('[data-engine-car]').emit('pointerenter', { pointerType: 'mouse' }); },
     hoverControl(delta = 300, pointerType = 'mouse') { now += delta; element('.hover-control').emit('pointerenter', { pointerType }); },
@@ -274,4 +283,34 @@ test('footer logo entrance starts when it comes into view, not while offscreen',
   const reduced = setup({ reduced: true });
   reduced.element('.site-footer .brand-mark').emit('focus');
   assert.equal(reduced.element('.site-footer .brand-mark').classList.contains('spinning'), false);
+});
+
+test('night design is restored before initialization and toggles back to the saved day design', () => {
+  const app = setup({storedTheme:'night'});
+  assert.equal(app.initialTheme,'night');
+  assert.equal(app.element('#theme-toggle').getAttribute('aria-pressed'),'true');
+  assert.equal(app.element('#theme-toggle .theme-label').textContent,'День');
+  app.click('#theme-toggle');
+  assert.equal(app.document.documentElement.getAttribute('data-theme'),'day');
+  assert.equal(app.storage.get('china-import-theme'),'day');
+  app.click('#theme-toggle');
+  assert.equal(app.storage.get('china-import-theme'),'night');
+  assert.equal(app.element('meta[name="theme-color"]').getAttribute('content'),'#0b211b');
+  const reloaded = setup({storedTheme:app.storage.get('china-import-theme')});
+  assert.equal(reloaded.initialTheme,'night');
+});
+
+test('unknown stored designs fall back to day', () => {
+  const app = setup({storedTheme:'invalid'});
+  assert.equal(app.initialTheme,'day');
+  assert.equal(app.element('#theme-toggle').getAttribute('aria-pressed'),'false');
+});
+
+test('theme switching remains available when storage is blocked', () => {
+  const app = setup({storageBlocked:true});
+  assert.equal(app.initialTheme,'day');
+  app.click('#theme-toggle');
+  assert.equal(app.document.documentElement.getAttribute('data-theme'),'night');
+  app.click('#theme-toggle');
+  assert.equal(app.document.documentElement.getAttribute('data-theme'),'day');
 });
